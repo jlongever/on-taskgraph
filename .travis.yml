@@ -1,9 +1,11 @@
 language: node_js
+sudo: required
+dist: trusty
 node_js:
   - "0.10"
-services:
- - mongodb
- - rabbitmq
+before_install: 
+ - sudo apt-cache search mongo
+ - sudo apt-get install -y mongodb rabbitmq-server
 after_success:
  - ./node_modules/.bin/istanbul cover -x "**/spec/**" ./node_modules/.bin/_mocha --report lcovonly -- $(find spec -name '*-spec.js') -R spec --require spec/helper.js
  - cat ./coverage/lcov.info | node_modules/.bin/coveralls
