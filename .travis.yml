@@ -8,6 +8,14 @@ matrix:
   allow_failures:
    - node_js: "4"
 
+addons:
+  apt:
+    packages:
+      - dh-make
+      - devscripts
+      - debhelper
+      - git
+
 services:
  - mongodb
  - rabbitmq
@@ -15,6 +23,25 @@ services:
 after_success:
  - ./node_modules/.bin/istanbul cover -x "**/spec/**" ./node_modules/.bin/_mocha --report lcovonly -- $(find spec -name '*-spec.js') -R spec --require spec/helper.js
  - cat ./coverage/lcov.info | node_modules/.bin/coveralls
+
+before_deploy:
+ - npm prune --production
+ - mkdir -p packagebuild deb
+ - cp -ar !(packagebuild) packagebuild/
+ - pushd packagebuild
+ - git log -n 1 --pretty=format:%h.%ai.%s > commitstring.txt
+ - debuild --no-lintian --no-tgz-check -us -uc
+ - popd
+ - cp -a *.deb deb/
+
+deploy: 
+  provider: bintray
+  file: .bintray.json
+  user: $BINTRAY_USER
+  key: $BINTRAY_KEY
+  on:
+    branch: master
+    node: "0.10"
 
 notifications:
   slack:
