@@ -30,6 +30,9 @@ before_deploy:
  - cp -ar !(packagebuild) packagebuild/
  - pushd packagebuild
  - git log -n 1 --pretty=format:%h.%ai.%s > commitstring.txt
+ - export DEBFULLNAME=`git log -n 1 --pretty=format:%an`
+ - export DEBEMAIL=`git log -n 1 --pretty=format:%ae`
+ - dch -l `echo "${TRAVIS_BRANCH}" | sed 's/[\/\_]/-/g'` -u low `git log -n 1 --pretty=oneline --abbrev-commit` 
  - debuild --no-lintian --no-tgz-check -us -uc
  - popd
  - cp -a *.deb deb/
@@ -40,7 +43,7 @@ deploy:
   user: $BINTRAY_USER
   key: $BINTRAY_KEY
   on:
-    branch: master
+    all_branches: true
     node: "0.10"
 
 notifications:

@@ -1,8 +1,8 @@
 {
     "package": {
         "name": "packages",
-        "repo": "debian", 
-        "subject": "rackhd"
+        "repo": "deb", 
+        "subject": "jlongever"
     },
 
     "version": {
